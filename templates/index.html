@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ajouter ou télécharger un fichier depuis AWS S3</title>
+    <link rel="stylesheet" href="static/styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <h1 class="main-title">Interagir avec AWS S3</h1>
+    <div class="container">
+        <div class="content">
+            <h2>Ajouter un fichier :</h2>
+            <form action="/uploader" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <input class="form-control" name="file" type="file" id="formFile">
+                </div>
+                <input type="submit" value="Envoyer" class="btn-envoyer">
+            </form>
+
+            <h2>Interagir avec vos objets dans le Bucket S3 :</h2>
+            <div class="file-interaction-container">
+                <select id="file-select" class="form-select" aria-label="Default select example">
+                    <option value="" disabled selected>Vous trouverez ici vos fichiers</option>
+                    {% for objet in objets_s3 %}
+                        <option value="{{ objet }}">{{ objet }}</option>
+                    {% endfor %}
+                </select>
+                <div class="button-container">
+                    <form id="delete-form" action="/supprimer" method="post">
+                        <input type="hidden" id="selected-file-delete" name="objet" value="">
+                        <button type="submit" id="btn-supprimer" class="btn-supprimer" disabled>Supprimer</button>
+                    </form>
+                    
+                    <form id="download-form" action="/telecharger" method="post">
+                        <input type="hidden" id="selected-file-download" name="objet" value="">
+                        <button type="submit" id="btn-telecharger" class="btn-telecharger" disabled>Télécharger</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fileSelect = document.getElementById('file-select');
+        const btnSupprimer = document.getElementById('btn-supprimer');
+        const btnTelecharger = document.getElementById('btn-telecharger');
+        const selectedFileDelete = document.getElementById('selected-file-delete');
+        const selectedFileDownload = document.getElementById('selected-file-download');
+        const deleteForm = document.getElementById('delete-form');
+        
+        fileSelect.addEventListener('change', function() {
+            const selectedFile = this.value;
+            selectedFileDelete.value = selectedFile;
+            selectedFileDownload.value = selectedFile;
+            deleteForm.action = "/supprimer/" + selectedFile; // Mettre à jour l'action du formulaire
+            btnSupprimer.disabled = selectedFile === '';
+            btnTelecharger.disabled = selectedFile === '';
+        });
+    </script>
+</body>
+</html>
